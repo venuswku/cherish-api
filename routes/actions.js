@@ -50,6 +50,18 @@ router.route("/:id").get((req, res) => {
     .catch(err => res.status(400).json("Error: " + err));
 });
 
+// Route: /actions/random
+// Reads and returns a random action from the MongoDB Atlas database.
+router.route("/random").get((req, res) => {
+  Action.estimatedDocumentCount((err, totalActions) => {
+    // Calculate a random number of documents to skip over before finding an action document to return.
+    const randomSkips = Math.floor(Math.random() * totalActions);
+    Action.findOne().skip(randomSkips)
+      .then(randomAction => res.json(randomAction))
+      .catch(err => res.status(400).json("Error: " + err));
+  });
+});
+
 // Route: /actions/like/:id
 // Updates the number of likes for an existing action with the specified object id.
 router.route("/like/:id").post((req, res) => {

@@ -12,6 +12,9 @@ GET `/actions`
 GET `/actions/:id`
 - Returns detailed information about a single act of kindness with the specified object id.
 
+GET `/actions/random`
+- Returns information about a single random act of kindness.
+
 POST `/actions/suggest`
 - Suggests a new act of kindness, which needs to be approved before being added to our database.
 - Requires authentication.
