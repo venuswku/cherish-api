@@ -9,22 +9,22 @@ POST `/actions/suggest`
 - Requires authentication.
 - The request body needs to be in JSON format and includes the following properties:
   - `act`: suggested act of kindness (required string)
-  - `desc`: explanation for act of kindness (required string)
   - `for`: who the act of kindness is for (required array of strings)
   - `like`: whether suggester wants to be the first to like their own suggestion (required boolean)
   - `did`: whether suggester did their suggested act of kindness (required boolean)
   - `suggester`: id of person who suggested this act of kindness (required object id)
+  - `desc`: explanation for act of kindness (optional string)
   - `img`: link to an image that relates to this act of kindness (optional string)
 - Example request body:
   ```json
   {
     "act": "Send a handwritten letter or postcard to someone",
-    "desc": "Brighten a loved one's day by sharing what you appreciate about them!",
     "for": ["family", "friends", "yourself"],
     "like": true,
     "did": true,
     "suggester": "62957314cb99993a91f07ce8",
-    "img": ""
+    "desc": "Brighten a loved one's day by sharing what you appreciate about them!",
+    "img": "https://raw.githubusercontent.com/venuswku/cherish-api/master/images/handwritten-letter.jpg?token=GHSAT0AAAAAABUX4HZF5SDO5DK66YPFHCF6YUWUFYA"
   }
   ```
 

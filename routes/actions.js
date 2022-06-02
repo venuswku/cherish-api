@@ -6,7 +6,6 @@ let Action = require("../models/action.model");
 router.route("/suggest").post((req, res) => {
   const {
     act: suggestedAction,
-    desc: suggestedDesc,
     for: suggestedFor,
     like: suggesterLikes,
     did: suggesterDidAction,
@@ -16,13 +15,15 @@ router.route("/suggest").post((req, res) => {
   // Assign data from POST request to a new instance of Action.
   let actionData = {
     action: suggestedAction,
-    description: suggestedDesc,
     for: suggestedFor,
     likes: (suggesterLikes ? [suggesterId] : []),
     done: (suggesterDidAction ? [suggesterId] : []),
     suggestedBy: suggesterId,
     approved: false,
   };
+  if (req.body.hasOwnProperty("desc")) {
+    actionData["description"] = req.body.desc;
+  }
   if (req.body.hasOwnProperty("img")) {
     actionData["imageLink"] = req.body.img;
   }
@@ -30,7 +31,10 @@ router.route("/suggest").post((req, res) => {
   
   // Save the new Action instance to the database.
   newAction.save()
-    .then(() => res.status(201).json("Your suggested act of kindness has been submitted for approval!"))
+    .then(() => res.status(201).json({
+      message: "Your suggested act of kindness has been submitted for approval!",
+      result: newAction
+    }))
     .catch(err => res.status(400).json("Error adding your act of kindness: " + err));
 });
 

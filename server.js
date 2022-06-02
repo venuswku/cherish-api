@@ -1,37 +1,7 @@
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
-
-// Allow environment variables to be stored in the .env file.
-require("dotenv").config();
-
-// Initialize Node.js server using an Express web framework.
-const app = express();
-const port = process.env.PORT || 5000;
-
-// Add CORS middleware to allow getting resources from other servers.
-app.use(cors());
-// Add Express middleware to parse JSON data, which is sent to and from our server.
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Connect server to MongoDB database.
-const uri = process.env.ATLAS_URI;  // uri = where Mongo database is stored (get from MongoDB dashboard)
-mongoose.connect(uri);
-// Print in terminal once MongoDB connection is open.
-const connection = mongoose.connection;
-connection.once("open", () => {
-  console.log("Mongoose database connection established successfully.");
-});
-
-// Require/import server routers.
-const actionsRouter = require("./routes/actions");
-const usersRouter = require("./routes/users");
-// Load all possible routes (endpoints for HTTP requests) for each server router.
-app.use("/actions", actionsRouter);
-app.use("/users", usersRouter);
+const app = require("./app");
 
 // Tell server to start listening to a certain port.
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`Server is running at: http://localhost:${port}/.`);
 });
