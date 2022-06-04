@@ -3,25 +3,10 @@
 // Require supertest and app to test HTTP requests/responses for action-related endpoints.
 const app = require("../app");
 const request = require("supertest");
-const mongoose = require("mongoose");
+const setupTests = require("./test-setup");
 
-// Connect to the test MongoDB before each test case.
-beforeEach((done) => {
-	mongoose.connect(
-		process.env.MONGODB_ATLAS_TEST_URI,
-		{ useNewUrlParser: true },
-		() => done()
-	);
-});
-
-// Drop database and close the connection after each test case runs.
-afterEach((done) => {
-	mongoose.connection.db.dropDatabase(() => {
-		mongoose.connection.close(() => done());
-	});
-});
-
-afterAll((done) => mongoose.connection.close(() => done()));
+// Setup MongoDB connection for tests.
+setupTests("actions");
 
 test("GET /actions/all without `for` query parameter", async () => {
   // Add a new document to our database so that we won't get an empty response.
