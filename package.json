@@ -4,8 +4,8 @@
   "description": "My first REST API!",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server",
-    "test": "jest --coverage"
+    "start": "SET NODE_ENV=prod&&nodemon server",
+    "test": "SET NODE_ENV=test&&jest --coverage --detectOpenHandles"
   },
   "repository": {
     "type": "git",

@@ -39,13 +39,29 @@ router.route("/suggest").post((req, res) => {
 });
 
 // Route: /actions/
-// Reads and returns all actions from the MongoDB Atlas database.
+// Reads and returns all APPROVED actions from the MongoDB Atlas database.
 // If query parameter values with the key "for" are provided, we only return filtered actions.
 router.route("/").get((req, res) => {
   const forFilters = req.query.for;
   if (forFilters) {
     Action.find({ "for": { $in: forFilters } })             // find() returns actions that match at least one of the given `for` parameter values
       .then(filteredActions => res.json(filteredActions))   // then returns actions in JSON format
+      .catch(err => res.status(400).json("Error getting filtered acts of kindness: " + err));
+  } else {
+    Action.find({ approved: true })
+      .then(actions => res.json(actions))
+      .catch(err => res.status(400).json("Error getting all approved acts of kindness: " + err));
+  }
+});
+
+// Route: /actions/all
+// Reads and returns ALL actions from the MongoDB Atlas database.
+// If query parameter values with the key "for" are provided, we only return filtered actions.
+router.route("/all").get((req, res) => {
+  const forFilters = req.query.for;
+  if (forFilters) {
+    Action.find({ "for": { $in: forFilters } })
+      .then(filteredActions => res.json(filteredActions))
       .catch(err => res.status(400).json("Error getting filtered acts of kindness: " + err));
   } else {
     Action.find()

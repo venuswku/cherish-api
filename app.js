@@ -14,15 +14,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect server to MongoDB database.
+// Connect server to MongoDB database (tests create own connection).
 // uri = where Mongo database is stored (get from MongoDB dashboard)
-const uri = (process.env.NODE_ENV === "prod") ? process.env.MONGODB_ATLAS_PROD_URI : process.env.MONGODB_ATLAS_TEST_URI;
-mongoose.connect(uri);
-// Print in terminal once MongoDB connection is open.
-const connection = mongoose.connection;
-connection.once("open", () => {
-  console.log("Mongoose database connection established successfully.");
-});
+if (process.env.NODE_ENV === "prod") {
+  const uri = process.env.MONGODB_ATLAS_PROD_URI;
+  mongoose.connect(uri);
+  // Print in terminal once MongoDB connection is open.
+  const connection = mongoose.connection;
+  connection.once("open", () => {
+    console.log("Mongoose database connection established successfully.");
+  });
+}
 
 // Require/import server routers.
 const actionsRouter = require("./routes/actions");
