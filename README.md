@@ -41,6 +41,11 @@ GET `/actions/get/:id`
 GET `/actions/random`
 - Returns information about a single random act of kindness.
 
+PUT `/actions/approve/:id`
+- Approves an act of kindness with the specified id.
+  - Only authorized approvers can perform this update.
+  - Authorize approvers are stored in the `.env` file.
+
 PUT `/actions/like/:id`
 - Either adds or removes a like for the act of kindness with the specified id.
   - If the user's id is not in the list of people who liked the act, then it increments the number of likes by adding the id of the user.

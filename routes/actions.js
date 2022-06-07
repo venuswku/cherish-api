@@ -90,6 +90,28 @@ router.route("/random").get((req, res) => {
   });
 });
 
+// Route: /actions/approve/:id
+// Updates the approval for an existing action with the specified object id.
+router.route("/approve/:id").put((req, res) => {
+  const userObjectId = req.body.userId;
+  const approvers = JSON.parse(process.env.APPROVERS);
+  if (approvers.includes(userObjectId)) {
+    Action.findById(req.params.id)
+      .then(existingAction => {
+        // Approve act of kindness.
+        existingAction.approved = true;
+        
+        // Save update for act of kindness.
+        existingAction.save()
+          .then(() => { res.json("The specified act of kindness has successfully been approved.") })
+          .catch(err => res.status(400).json("Error updating approval for an act of kindness: " + err));
+      })
+      .catch(err => res.status(400).json("Error finding the specified act of kindness to update approval: " + err));
+  } else {
+    res.status(400).json("Your account cannot be used to approve suggested acts of kindness.");
+  }
+});
+
 // Route: /actions/like/:id
 // Updates the number of likes for an existing action with the specified object id.
 router.route("/like/:id").put((req, res) => {
