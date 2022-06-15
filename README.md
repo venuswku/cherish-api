@@ -27,6 +27,25 @@ POST `/actions/suggest`
     "img": "https://raw.githubusercontent.com/venuswku/cherish-api/master/images/handwritten-letter.jpg?token=GHSAT0AAAAAABUX4HZF5SDO5DK66YPFHCF6YUWUFYA"
   }
   ```
+- Example response body:
+  ```json
+  {
+    "message": "Your suggested act of kindness has been submitted for approval!",
+    "result": {
+      "action": "Send a handwritten letter or postcard to someone",
+      "for": [ "family", "friends", "yourself" ],
+      "likes": [ "62957314cb99993a91f07ce8" ],
+      "done": [ "62957314cb99993a91f07ce8" ],
+      "suggestedBy": "62957314cb99993a91f07ce8",
+      "approved": false,
+      "description": "Brighten a loved one's day by sharing what you appreciate about them!",
+      "_id": "62a8d544b47565ff4a2181ba",
+      "createdAt": "2022-06-13T18:36:52.356Z",
+      "updatedAt": "2022-06-13T18:36:52.356Z",
+      "__v": 0
+    }
+  }
+  ```
 
 GET `/actions`
 - Returns a list of all acts of kindness.

@@ -44,11 +44,11 @@ router.route("/suggest").post((req, res) => {
 router.route("/").get((req, res) => {
   const forFilters = req.query.for;
   if (forFilters) {
-    Action.find({ "for": { $in: forFilters } })             // find() returns actions that match at least one of the given `for` parameter values
-      .then(filteredActions => res.json(filteredActions))   // then returns actions in JSON format
+    Action.find({ "approved": true, "for": { $in: forFilters } })   // find() returns approved actions that match at least one of the given `for` parameter values
+      .then(filteredActions => res.json(filteredActions))           // then returns actions in JSON format
       .catch(err => res.status(400).json("Error getting filtered acts of kindness: " + err));
   } else {
-    Action.find({ approved: true })
+    Action.find({ "approved": true })
       .then(actions => res.json(actions))
       .catch(err => res.status(400).json("Error getting all approved acts of kindness: " + err));
   }
@@ -81,10 +81,10 @@ router.route("/get/:id").get((req, res) => {
 // Route: /actions/random
 // Reads and returns a random approved action from the MongoDB Atlas database.
 router.route("/random").get((req, res) => {
-  Action.countDocuments({ approved: true }, (err, totalApprovedActions) => {
+  Action.countDocuments({ "approved": true }, (err, totalApprovedActions) => {
     // Calculate a random number of approved documents to skip over before finding an action document to return.
     const randomSkips = Math.floor(Math.random() * totalApprovedActions);
-    Action.findOne({ approved: true }).skip(randomSkips)
+    Action.findOne({ "approved": true }).skip(randomSkips)
       .then(randomAction => res.json(randomAction))
       .catch(err => res.status(400).json("Error getting a random act of kindness: " + err));
   });

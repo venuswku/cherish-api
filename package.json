@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "SET NODE_ENV=prod&&nodemon server",
-    "test": "SET NODE_ENV=test&&jest --coverage --detectOpenHandles"
+    "test": "SET NODE_ENV=test&&jest --coverage"
   },
   "repository": {
     "type": "git",
