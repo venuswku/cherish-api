@@ -312,26 +312,24 @@ describe("GET /actions/all", () => {
     await request(app).put(`/actions/approve/${postedDoc1Result._id}`).send({
       "userId": "62957314cb99993a91f07ce8"
     });
+    const postedDoc2Response = await request(app).get(`/actions/get/${postResponse2.body.result._id}`);
+    const postedDoc2Result = postedDoc2Response.body;
 
     // Get/retrieve all APPROVED actions (both newly added action documents should be returned because they each have at least one of the `for` query values).
-    await request(app).get("/actions?for=stranger&for=yourself")
+    await request(app).get("/actions/all?for=stranger&for=yourself")
       .expect(200)
       .then((response) => {
         // Check response type and length.
         expect(Array.isArray(response.body)).toBeTruthy();
         expect(response.body.length).toEqual(2);
 
-        // Make sure all returned actions are approved.
-        const actionApprovals = response.body.map(action => action.approved);
-        expect(actionApprovals).not.toContain(false);
-        
         // Remove `updatedAt` and `approved` properties of each document
-        // because they'll be different from their initial values after the approval requests.
+        // because they'll be different from their initial values after the approval request.
         delete postedDoc1Result.updatedAt;
         delete postedDoc2Result.updatedAt;
         delete postedDoc1Result.approved;
         delete postedDoc2Result.approved;
-        
+
         // Check if required data is returned.
         expect(response.body).toEqual(
           expect.arrayContaining([
