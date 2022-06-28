@@ -82,11 +82,17 @@ router.route("/get/:id").get((req, res) => {
 // Reads and returns a random approved action from the MongoDB Atlas database.
 router.route("/random").get((req, res) => {
   Action.countDocuments({ "approved": true }, (err, totalApprovedActions) => {
-    // Calculate a random number of approved documents to skip over before finding an action document to return.
-    const randomSkips = Math.floor(Math.random() * totalApprovedActions);
-    Action.findOne({ "approved": true }).skip(randomSkips)
-      .then(randomAction => res.json(randomAction))
-      .catch(err => res.status(400).json("Error getting a random act of kindness: " + err));
+    if (err) {
+      res.status(400).json("Error getting a random act of kindness: Cannot retrieve approved acts of kindness to choose from.");
+    } else if (totalApprovedActions === 0) {
+      res.status(400).json("Error getting a random act of kindness: No approved acts of kindness to choose from.");
+    } else {
+      // Calculate a random number of approved documents to skip over before finding an action document to return.
+      const randomSkips = Math.floor(Math.random() * totalApprovedActions);
+      Action.findOne({ "approved": true }).skip(randomSkips)
+        .then(randomAction => res.json(randomAction))
+        .catch(err => res.status(400).json("Error getting a random act of kindness: " + err));
+    }
   });
 });
 
@@ -103,7 +109,12 @@ router.route("/approve/:id").put((req, res) => {
         
         // Save update for act of kindness.
         existingAction.save()
-          .then(() => { res.json("The specified act of kindness has successfully been approved.") })
+          .then(() => {
+            res.json({
+              message: "The specified act of kindness has successfully been approved.",
+              result: existingAction
+            });
+          })
           .catch(err => res.status(400).json("Error updating approval for an act of kindness: " + err));
       })
       .catch(err => res.status(400).json("Error finding the specified act of kindness to update approval: " + err));

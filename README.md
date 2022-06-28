@@ -64,6 +64,31 @@ PUT `/actions/approve/:id`
 - Approves an act of kindness with the specified id.
   - Only authorized approvers can perform this update.
   - Authorize approvers are stored in the `.env` file.
+- Example request body:
+  ```json
+  {
+    "userId": "12345678ab91011c12d13ef0"
+  }
+  ```
+- Example response body:
+  ```json
+  {
+    "message": "The specified act of kindness has successfully been approved.",
+    "result": {
+      "_id": "62ba8f4e4fe8390449ee3ec8",
+      "action": "Send a handwritten letter or postcard to someone",
+      "approved": true,
+      "createdAt": "2022-06-28T05:19:10.616Z",
+      "description": "Brighten a loved one's day by sharing what you appreciate about them!",
+      "done": ["62957314cb99993a91f07ce8"],
+      "for": ["family", "friends", "yourself"],
+      "imageLink": "https://raw.githubusercontent.com/venuswku/cherish-api/master/images/handwritten-letter.jpg?token=GHSAT0AAAAAABUX4HZF5SDO5DK66YPFHCF6YUWUFYA",
+      "likes": ["62957314cb99993a91f07ce8"],
+      "suggestedBy": "62957314cb99993a91f07ce8",
+      "updatedAt": "2022-06-28T05:19:10.655Z"
+    }
+  }
+  ```
 
 PUT `/actions/like/:id`
 - Either adds or removes a like for the act of kindness with the specified id.
