@@ -428,13 +428,15 @@ describe("GET /actions/approve/:id", () => {
 
     // Approve both new documents so that we can check get both approved documents later.
     const postedDoc1Result = postResponse1.body.result;
-    await request(app).put(`/actions/approve/${postedDoc1Result._id}`).send({
+    const approveResponse1 = await request(app).put(`/actions/approve/${postedDoc1Result._id}`).send({
       "userId": "62957314cb99993a91f07ce8"
     });
+    const approvedDoc1Result = approveResponse1.body.result;
     const postedDoc2Result = postResponse2.body.result;
-    await request(app).put(`/actions/approve/${postedDoc2Result._id}`).send({
+    const approveResponse2 = await request(app).put(`/actions/approve/${postedDoc2Result._id}`).send({
       "userId": "62957314cb99993a91f07ce8"
     });
+    const approvedDoc2Result = approveResponse2.body.result;
 
     // Get/retrieve all APPROVED actions.
     await request(app).get("/actions/")
@@ -443,19 +445,12 @@ describe("GET /actions/approve/:id", () => {
         // Check response type and length.
         expect(Array.isArray(response.body)).toBeTruthy();
         expect(response.body.length).toEqual(2);
-  
-        // Remove `updatedAt` and `approved` properties of each document
-        // because they'll be different from their initial values after the approval request.
-        delete postedDoc1Result.updatedAt;
-        delete postedDoc2Result.updatedAt;
-        delete postedDoc1Result.approved;
-        delete postedDoc2Result.approved;
 
         // Check if required data is returned.
         expect(response.body).toEqual(
           expect.arrayContaining([
-            expect.objectContaining(postedDoc1Result),
-            expect.objectContaining(postedDoc2Result)
+            expect.objectContaining(approvedDoc1Result),
+            expect.objectContaining(approvedDoc2Result)
           ])
         );
       });
