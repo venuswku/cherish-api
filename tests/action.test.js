@@ -31,7 +31,7 @@ const doc2 = {
 // Start testing.
 describe("GET /actions", () => {
   test("Without `for` query parameter -> should get all approved acts of kindness", async () => {
-    // Add a new document to our database so that we won't get an empty response.
+    // Add new documents to our database so that we won't get an empty response.
     const postResponse1 = await request(app).post("/actions/suggest").send(doc1);
     await request(app).post("/actions/suggest").send(doc2);
   
@@ -62,7 +62,7 @@ describe("GET /actions", () => {
   });
 
   test("One `for` query parameter -> should get all approved acts of kindness that satisfy the specified `for` query", async () => {
-    // Add a new document to our database so that we won't get an empty response.
+    // Add new documents to our database so that we won't get an empty response.
     const postResponse1 = await request(app).post("/actions/suggest").send(doc1);
     const postResponse2 = await request(app).post("/actions/suggest").send(doc2);
   
@@ -146,7 +146,7 @@ describe("GET /actions", () => {
   });
 
   test("Two or more `for` query parameters -> should get all approved acts of kindness that satisfy at least one of the specified `for` queries", async () => {
-    // Add a new document to our database so that we won't get an empty response.
+    // Add new documents to our database so that we won't get an empty response.
     const postResponse1 = await request(app).post("/actions/suggest").send(doc1);
     const postResponse2 = await request(app).post("/actions/suggest").send(doc2);
   
@@ -240,7 +240,7 @@ describe("GET /actions/all", () => {
   });
 
   test("Two or more `for` query parameters -> should get all acts of kindness that satisfy at least one of the specified `for` queries", async () => {
-    // Add a new document to our database so that we won't get an empty response.
+    // Add new documents to our database so that we won't get an empty response.
     const postResponse1 = await request(app).post("/actions/suggest").send(doc1);
     const postResponse2 = await request(app).post("/actions/suggest").send(doc2);
   
@@ -314,7 +314,7 @@ describe("GET /actions/random", () => {
   });
 
   test("One approved action document -> should return the only approved document", async () => {
-    // Add a new documents to our database so that we won't get an empty response.
+    // Add new documents to our database so that we won't get an empty response.
     const postResponse1 = await request(app).post("/actions/suggest").send(doc1);
     await request(app).post("/actions/suggest").send(doc2);
 
@@ -344,7 +344,7 @@ describe("GET /actions/random", () => {
   });
 
   test("More than one approved action document -> should return a random approved action document", async () => {
-    // Add a new documents to our database so that we won't get an empty response.
+    // Add new documents to our database so that we won't get an empty response.
     const postResponse1 = await request(app).post("/actions/suggest").send(doc1);
     const postResponse2 = await request(app).post("/actions/suggest").send(doc2);
 
@@ -370,6 +370,94 @@ describe("GET /actions/random", () => {
 
         // Check if one of the approved action documents is returned.
         expect([approvedDoc1Result, approvedDoc2Result]).toContainEqual(retrievedDoc);
+      });
+  });
+});
+
+describe("GET /actions/approve/:id", () => {
+  test("Approve zero action documents -> should not return any approved action documents", async () => {
+    // Add new documents to our database so that we won't get an empty response.
+    await request(app).post("/actions/suggest").send(doc1);
+    await request(app).post("/actions/suggest").send(doc2);
+  
+    // Get/retrieve all APPROVED actions.
+    await request(app).get("/actions/")
+      .expect(200)
+      .then((response) => {
+        // Check response type and length.
+        expect(Array.isArray(response.body)).toBeTruthy();
+        expect(response.body.length).toEqual(0);
+      });
+  });
+  
+  test("Approve one action document -> should return the only approved action document", async () => {
+    // Add new documents to our database so that we won't get an empty response.
+    const postResponse1 = await request(app).post("/actions/suggest").send(doc1);
+    await request(app).post("/actions/suggest").send(doc2);
+  
+    // Approve one of the new documents so that we can check if we get the approved document later.
+    const postedDoc1Result = postResponse1.body.result;
+    await request(app).put(`/actions/approve/${postedDoc1Result._id}`).send({
+      "userId": "62957314cb99993a91f07ce8"
+    });
+
+    // Get/retrieve all APPROVED actions.
+    await request(app).get("/actions/")
+      .expect(200)
+      .then((response) => {
+        // Check response type and length.
+        expect(Array.isArray(response.body)).toBeTruthy();
+        expect(response.body.length).toEqual(1);
+  
+        // Check if required data is returned.
+        const retrievedDoc = response.body[0];
+        expect(retrievedDoc._id).toBe(postedDoc1Result._id);
+        expect(retrievedDoc.action).toBe(postedDoc1Result.action);
+        expect(retrievedDoc.for).toStrictEqual(postedDoc1Result.for);
+        expect(retrievedDoc.likes).toStrictEqual(postedDoc1Result.likes);
+        expect(retrievedDoc.done).toStrictEqual(postedDoc1Result.done);
+        expect(retrievedDoc.suggestedBy).toBe(postedDoc1Result.suggestedBy);
+        expect(retrievedDoc.approved).toBe(true);
+      });
+  });
+  
+  test("Approve more than one action document -> should return all approved action documents", async () => {
+    // Add new documents to our database so that we won't get an empty response.
+    const postResponse1 = await request(app).post("/actions/suggest").send(doc1);
+    const postResponse2 = await request(app).post("/actions/suggest").send(doc2);
+
+    // Approve both new documents so that we can check get both approved documents later.
+    const postedDoc1Result = postResponse1.body.result;
+    await request(app).put(`/actions/approve/${postedDoc1Result._id}`).send({
+      "userId": "62957314cb99993a91f07ce8"
+    });
+    const postedDoc2Result = postResponse2.body.result;
+    await request(app).put(`/actions/approve/${postedDoc2Result._id}`).send({
+      "userId": "62957314cb99993a91f07ce8"
+    });
+
+    // Get/retrieve all APPROVED actions.
+    await request(app).get("/actions/")
+      .expect(200)
+      .then((response) => {
+        // Check response type and length.
+        expect(Array.isArray(response.body)).toBeTruthy();
+        expect(response.body.length).toEqual(2);
+  
+        // Remove `updatedAt` and `approved` properties of each document
+        // because they'll be different from their initial values after the approval request.
+        delete postedDoc1Result.updatedAt;
+        delete postedDoc2Result.updatedAt;
+        delete postedDoc1Result.approved;
+        delete postedDoc2Result.approved;
+
+        // Check if required data is returned.
+        expect(response.body).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining(postedDoc1Result),
+            expect.objectContaining(postedDoc2Result)
+          ])
+        );
       });
   });
 });
