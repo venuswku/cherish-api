@@ -1,6 +1,6 @@
 # Cherish API
 To find and share different ways to cherish the people around you, use this API to access and suggest acts of kindness.\
-Available at https://venuswku.github.io/cherish-api.
+Available (soon) at https://venuswku.github.io/cherish-api.
 
 ## Endpoints
 ### Actions
@@ -62,8 +62,8 @@ GET `/actions/random`
 
 PUT `/actions/approve/:id`
 - Approves an act of kindness with the specified id.
-  - Only authorized approvers can perform this update.
-  - Authorize approvers are stored in the `.env` file.
+  - Only authorized administrators can perform this update.
+  - Authorized administrators are stored in the `.env` file.
 - Example request body:
   ```json
   {
@@ -102,6 +102,14 @@ PUT `/actions/done/:id`
 
 DELETE `/actions/:id`
 - Removes the act of kindness with the specified id from our database.
+  - Only authorized administrators can perform this delete operation.
+  - Authorized administrators are stored in the `.env` file.
+- Example request body:
+  ```json
+  {
+    "userId": "12345678ab91011c12d13ef0"
+  }
+  ```
 
 ## Users
 POST `/users/add`
@@ -114,6 +122,19 @@ POST `/users/add`
   {
     "email": "venuswku@gmail.com",
     "name": "Venus Ku"
+  }
+  ```
+- Example response body:
+  ```json
+  {
+    "message": "You are saved to our database!",
+    "result": {
+      "_id": "62957314cb99993a91f07ce8",
+      "email": "venuswku@gmail.com",
+      "name": "Venus Ku",
+      "createdAt": "2022-06-28T05:19:10.616Z",
+      "updatedAt": "2022-06-28T05:19:10.655Z"
+    }
   }
   ```
 

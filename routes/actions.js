@@ -1,5 +1,6 @@
 const router = require("express").Router();
 let Action = require("../models/action.model");
+const User = require("../models/user.model");
 
 // Route: /actions/suggest
 // Creates a suggested act of kindness, which will later be reviewed/approved by me.
@@ -100,8 +101,8 @@ router.route("/random").get((req, res) => {
 // Updates the approval for an existing action with the specified object id.
 router.route("/approve/:id").put((req, res) => {
   const userObjectId = req.body.userId;
-  const approvers = JSON.parse(process.env.APPROVERS);
-  if (approvers.includes(userObjectId)) {
+  const admins = JSON.parse(process.env.ADMINS);
+  if (admins.includes(userObjectId)) {
     Action.findById(req.params.id)
       .then(existingAction => {
         // Approve act of kindness.
@@ -126,65 +127,81 @@ router.route("/approve/:id").put((req, res) => {
 // Route: /actions/like/:id
 // Updates the number of likes for an existing action with the specified object id.
 router.route("/like/:id").put((req, res) => {
-  const userObjectId = req.body.userId;
-  Action.findById(req.params.id)
-    .then(existingAction => {
-      // console.log("before update:", existingAction.likes);
-      const likeExists = existingAction.likes.includes(userObjectId);
-      if (likeExists) {
-        // If the user's id is already in the list and they want to remove their like, so remove their object id.
-        existingAction.likes.pull(userObjectId);
-      } else {
-        // Else we don't see the user's object id in the list of people who liked the specified act of kindness, so add them.
-        existingAction.likes.push(userObjectId);
-      }
-      // console.log("after update:", existingAction.likes);
-      
-      // Make sure to save update for likes.
-      existingAction.save()
-        .then(() => {
-          if (likeExists) { res.json("Your like for an act of kindness has successfully been removed."); }
-          else { res.json("Your like for an act of kindness has successfully been added."); }
+  User.findById(req.body.userId)
+    .then(user => {
+      // Only update likes if the given user id exists.
+      const userObjectId = user._id;
+      Action.findById(req.params.id)
+        .then(existingAction => {
+          // console.log("before update:", existingAction.likes);
+          const likeExists = existingAction.likes.includes(userObjectId);
+          if (likeExists) {
+            // If the user's id is already in the list and they want to remove their like, so remove their object id.
+            existingAction.likes.pull(userObjectId);
+          } else {
+            // Else we don't see the user's object id in the list of people who liked the specified act of kindness, so add them.
+            existingAction.likes.push(userObjectId);
+          }
+          // console.log("after update:", existingAction.likes);
+          
+          // Make sure to save update for likes.
+          existingAction.save()
+            .then(() => {
+              if (likeExists) { res.json("Your like for an act of kindness has successfully been removed."); }
+              else { res.json("Your like for an act of kindness has successfully been added."); }
+            })
+            .catch(err => res.status(400).json("Error updating likes for an act of kindness: " + err));
         })
-        .catch(err => res.status(400).json("Error updating likes for an act of kindness: " + err));
+        .catch(err => res.status(400).json("Error finding the specified act of kindness to update likes: " + err));
     })
-    .catch(err => res.status(400).json("Error finding the specified act of kindness to update likes: " + err));
+    .catch(err => res.status(400).json("Error finding user to update likes for the specified act of kindness: " + err));
 });
 
 // Route: /actions/done/:id
 // Updates the number of people who did an existing action with the specified object id.
 router.route("/done/:id").put((req, res) => {
-  const userObjectId = req.body.userId;
-  Action.findById(req.params.id)
-    .then(existingAction => {
-      // console.log("before update:", existingAction.done);
-      const doneExists = existingAction.done.includes(userObjectId);
-      if (doneExists) {
-        // If we've don't see the user's object id in the list of people who did the specified act of kindness, add them.
-        existingAction.done.pull(userObjectId);
-      } else {
-        // Else the user's id is already in the list and they want to remove their done vote, so remove their object id.
-        existingAction.done.push(userObjectId);
-      }
-      // console.log("after update:", existingAction.done);
-      
-      // Make sure to save update for done.
-      existingAction.save()
-        .then(() => {
-          if (doneExists) { res.json("Your done vote for an act of kindness has successfully been removed."); }
-          else { res.json("Your done vote for an act of kindness has successfully been added."); }
+  User.findById(req.body.userId)
+    .then(user => {
+      // Only update likes if the given user id exists.
+      const userObjectId = user._id;
+      Action.findById(req.params.id)
+        .then(existingAction => {
+          // console.log("before update:", existingAction.done);
+          const doneExists = existingAction.done.includes(userObjectId);
+          if (doneExists) {
+            // If we've don't see the user's object id in the list of people who did the specified act of kindness, add them.
+            existingAction.done.pull(userObjectId);
+          } else {
+            // Else the user's id is already in the list and they want to remove their done vote, so remove their object id.
+            existingAction.done.push(userObjectId);
+          }
+          // console.log("after update:", existingAction.done);
+          
+          // Make sure to save update for done.
+          existingAction.save()
+            .then(() => {
+              if (doneExists) { res.json("Your done vote for an act of kindness has successfully been removed."); }
+              else { res.json("Your done vote for an act of kindness has successfully been added."); }
+            })
+            .catch(err => res.status(400).json("Error updating done votes for an act of kindness: " + err));
         })
-        .catch(err => res.status(400).json("Error updating done votes for an act of kindness: " + err));
+        .catch(err => res.status(400).json("Error finding the specified act of kindness to update done votes: " + err));
     })
-    .catch(err => res.status(400).json("Error finding the specified act of kindness to update done votes: " + err));
+    .catch(err => res.status(400).json("Error finding user to update done votes for the specified act of kindness: " + err));
 });
 
 // Route: /actions/:id
 // Deletes an action with the specified object id, which is automatically generated by MongoDB.
 router.route("/:id").delete((req, res) => {
-  Action.findByIdAndDelete(req.params.id)
-    .then(() => res.json("Specified act of kindness has successfully been deleted."))
-    .catch(err => res.status(400).json("Error deleting an act of kindness: " + err));
+  const userObjectId = req.body.userId;
+  const admins = JSON.parse(process.env.ADMINS);
+  if (admins.includes(userObjectId)) {
+    Action.findByIdAndDelete(req.params.id)
+      .then(() => res.json("Specified act of kindness has successfully been deleted."))
+      .catch(err => res.status(400).json("Error deleting an act of kindness: " + err));
+  } else {
+    res.status(400).json("Your account cannot be used to delete acts of kindness.");
+  }
 });
 
 module.exports = router;

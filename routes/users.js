@@ -15,7 +15,10 @@ router.route("/add").post((req, res) => {
       const newUser = new User(userData);
       
       newUser.save()
-        .then(() => res.status(201).json("You are saved to our database!"))
+        .then(() => res.status(201).json({
+          message: "You are saved to our database!",
+          result: newUser
+        }))
         .catch(err => res.status(400).json("Error saving you to our database: " + err));
     });
 });
